@@ -6,6 +6,7 @@ plugins {
     id 'androidx.navigation.safeargs'
     id 'kotlin-parcelize'
     id 'com.google.dagger.hilt.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -58,6 +59,9 @@ kapt {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.3.0'
+
     //testing
     testImplementation "io.mockk:mockk:1.13.2"
     testImplementation 'junit:junit:4.12'

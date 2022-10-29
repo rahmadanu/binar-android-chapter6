@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,10 @@ import com.binar.movieapp.databinding.FragmentProfileBinding
 import com.binar.movieapp.presentation.ui.user.MainActivity
 import com.binar.movieapp.workers.KEY_IMAGE_URI
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -30,6 +34,8 @@ class ProfileFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: ProfileViewModel by viewModels()
+
+    @Inject lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,8 +50,29 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         observeData()
+        setFirebaseUser()
         setOnClickListener()
         viewModel.outputWorkInfos.observe(viewLifecycleOwner, workInfosObserver())
+    }
+
+    private fun setFirebaseUser() {
+        val firebaseUser = auth.currentUser
+        firebaseUser?.let { user ->
+            binding.apply {
+                tvUsername.text = getString(R.string.profile_username, "")
+                tvEmail.text = getString(R.string.profile_email, user.email.toString())
+                Log.d("profile", user.email.toString())
+                tvFullName.text = getString(R.string.profile_full_name, user.displayName)
+                tvDateOfBirth.text = getString(R.string.profile_date_of_birth, "")
+                tvAddress.text = getString(R.string.profile_address, "")
+
+                Glide.with(this@ProfileFragment)
+                    .load(user.photoUrl)
+                    .into(binding.ivProfileImage)
+                //viewModel.getImageUri(requireActivity(), firebaseUser.photoUrl.toString())
+
+            }
+        }
     }
 
     private fun setOnClickListener() {
