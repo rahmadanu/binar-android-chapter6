@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -19,10 +20,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -40,6 +44,9 @@ class LoginFragment : Fragment() {
 
     @Inject
     lateinit var auth: FirebaseAuth
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,6 +70,10 @@ class LoginFragment : Fragment() {
 
         binding.btnSignIn.setOnClickListener {
             signIn()
+        }
+
+        binding.btnTestCrash.setOnClickListener {
+            throw RuntimeException("Test Crash") // Force a crash
         }
     }
 
@@ -95,6 +106,11 @@ class LoginFragment : Fragment() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success")
+
+                    val bundle = Bundle()
+                    bundle.putString(FirebaseAnalytics.Param.METHOD, "google sign in")
+                    analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
+
                     val user = auth.currentUser
                     updateUI(user)
                 } else {
@@ -124,6 +140,10 @@ class LoginFragment : Fragment() {
                     navigateToHome()
                     setLoginState("Login Success")
                     viewModel.setUserLogin(true)
+
+                    val bundle = Bundle()
+                    bundle.putString(FirebaseAnalytics.Param.METHOD, "email and password")
+                    analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
                 } else {
                     setLoginState("Wrong username or password")
                 }

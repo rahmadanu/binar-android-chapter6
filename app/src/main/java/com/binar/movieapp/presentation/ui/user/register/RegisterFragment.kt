@@ -11,10 +11,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.binar.movieapp.R
+import com.binar.movieapp.data.firebase.model.User
 import com.binar.movieapp.data.local.preference.UserPreferences
 import com.binar.movieapp.databinding.FragmentRegisterBinding
 import com.binar.movieapp.presentation.ui.user.login.LoginViewModel
+import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RegisterFragment : Fragment() {
@@ -48,7 +51,6 @@ class RegisterFragment : Fragment() {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
             val user = UserPreferences(
-                id = id,
                 username = username,
                 email = email,
                 password = password
